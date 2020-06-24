@@ -2,8 +2,11 @@
 Assignment begins here: https://launchschool.com/lessons/dfff5f6b/assignments/180e267e
 =end
 
+require 'yaml'
+MESSAGES = YAML.load_file('oo_rps.yml')
+
 class Move
-  VALUES = ['rock', 'paper', 'scissors']
+  VALUES = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
   def initialize(value)
     @value = value
@@ -19,6 +22,14 @@ class Move
 
   def paper?
     @value == 'paper'
+  end
+
+  def lizard?
+    @value == 'lizard'
+  end
+
+  def spock?
+    @value == 'spock'
   end
 
   def >(other)
@@ -38,11 +49,33 @@ class Move
   end
 end
 
+#TODO: Fill out these subclasses.
+class Rock < Move
+end
+
+class Paper < Move
+end
+
+class Scissors < Move
+end
+
+class Lizard < Move
+end
+
+class Spock < Move
+end
+
 class Player
-  attr_accessor :move, :name
+  attr_accessor :move, :name, :score, :moves
 
   def initialize
+    @score = 0
+    @moves = []
     set_name
+  end
+
+  def add_move(mv)
+    @moves << mv
   end
 end
 
@@ -50,10 +83,10 @@ class Human < Player
   def set_name
     n = ''
     loop do
-      puts "What's your name?"
+      puts MESSAGES['request_name']
       n = gets.chomp
       break unless n.empty?
-      puts "Sorry, must enter a value."
+      puts MESSAGES['no_value']
     end
     self.name = n
   end
@@ -62,13 +95,14 @@ class Human < Player
     choice = nil
 
     loop do
-      puts "Please choose rock, paper, or scissors:"
+      puts MESSAGES['player_choose']
       choice = gets.chomp
       break if Move::VALUES.include?(choice)
-      puts "Sorry, invalid choice."
+      puts MESSAGES['invalid_choice']
     end
 
     self.move = Move.new(choice)
+    add_move(self.move)
   end
 end
 
@@ -79,10 +113,13 @@ class Computer < Player
 
   def choose
     self.move = Move.new(Move::VALUES.sample)
+    add_move(self.move)
   end
 end
 
 class RPSGame
+  WINNING_SCORE = 2
+
   attr_accessor :human, :computer
 
   def initialize
@@ -91,7 +128,7 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts "Welcome to Rock, Paper, Scissors!"
+    puts MESSAGES['welcome']
   end
 
   def display_moves
@@ -102,28 +139,53 @@ class RPSGame
   def display_winner
     if human.move > computer.move
       puts "#{human.name} won!"
+      human.score += 1
     elsif human.move < computer.move
       puts "#{computer.name} won!"
+      computer.score += 1
     else
-      puts "It's a tie!"
+      puts MESSAGES['tie'] 
     end
   end
 
+  def display_score
+    puts "#{human.name}: #{human.score}"
+    puts "#{computer.name}: #{computer.score}"
+  end
+
   def display_goodbye_message
-    puts "Thanks for playing Rock, Paper, Scissors. Goodbye!"
+    puts MESSAGES['goodbye']
   end
 
   def play_again?
     answer = nil
 
     loop do
-      puts "Would you like to play again? (y/n)"
+      puts MESSAGES['play_again']
       answer = gets.chomp
       break if ['y', 'n'].include?(answer.downcase)
-      puts "Sorry, must be y or n."
+      puts MESSAGES['invalid_y_n'] 
     end
 
-    answer.casecmp('y') ? true : false
+    ['Y', 'y'].include?(answer) ? true : false
+  end
+
+  def series_over?
+    human.score == WINNING_SCORE || computer.score == WINNING_SCORE
+  end
+
+  def display_series_winner
+    puts "This is a placeholder."
+  end
+
+  def display_series_winner
+    if human.score == WINNING_SCORE
+      puts "#{human.name} won the series with #{human.score} wins!"
+    elsif
+      puts "#{computer.name} won the series with #{computer.score} wins!"
+    else
+      puts MESSAGES['no_series_winner'] 
+    end
   end
 
   def play
@@ -134,8 +196,17 @@ class RPSGame
       computer.choose
       display_moves
       display_winner
+      display_score
+
+      #TODO: Remove this.
+      puts "#{human.name}'s moves: #{human.moves}"
+      puts "#{computer.name}'s moves: #{computer.moves}"
+
+      break if series_over?
       break unless play_again?
     end
+
+    display_series_winner
 
     display_goodbye_message
   end

@@ -1,0 +1,11 @@
+
+request_name: "What's your name?"
+no_value: 'Sorry, must enter a value.'
+player_choose: 'Please choose rock, paper, scissors, lizard, or spock:'
+invalid_choice: 'Sorry, invalid choice.'
+welcome: 'Welcome to Rock, Paper, Scissors, Lizard, Spock!'
+tie: "It's a tie!"
+goodbye: 'Thanks for playing Rock, Paper, Scissors, Lizard, Spock. Goodbye!'
+play_again: 'Would you like to play again? (y/n)'
+invalid_y_n: 'Sorry, must be y or n.'
+no_series_winner: 'Neither player won the needed number of matches.'
