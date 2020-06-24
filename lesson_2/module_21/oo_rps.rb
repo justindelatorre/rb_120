@@ -6,48 +6,12 @@ require 'yaml'
 MESSAGES = YAML.load_file('oo_rps.yml')
 
 class Move
+  attr_reader :value, :beats
+
   VALUES = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
-  attr_reader :value
-
-  def initialize(value)
-    @value = value
-  end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def lizard?
-    @value == 'lizard'
-  end
-
-  def spock?
-    @value == 'spock'
-  end
-
   def >(other)
-    (rock? && (other.scissors? || other.lizard?)) ||
-      (paper? && (other.rock? || other.spock?)) ||
-      (scissors? && (other.paper? || other.lizard?)) ||
-      (lizard? && (other.paper? || other.spock)) ||
-      (spock? && (other.rock? || other.scissors?))
-  end
-
-  def <(other)
-    (rock? && (other.paper? || other.spock?)) ||
-      (paper? && (other.scissors? || other.lizard?)) ||
-      (scissors? && (other.rock? || other.spock?)) ||
-      (lizard? && (other.rock? || other.scissors?)) ||
-      (spock? && (other.paper? || other.lizard?))
+    @beats.include?(other.to_s)
   end
 
   def to_s
@@ -55,24 +19,51 @@ class Move
   end
 end
 
-#TODO: Fill out these subclasses.
 class Rock < Move
+  def initialize
+    @value = 'rock'
+    @beats = ['scissors', 'lizard']
+  end
 end
 
 class Paper < Move
+  def initialize
+    @value = 'paper'
+    @beats = ['rock', 'spock']
+  end
 end
 
 class Scissors < Move
+  def initialize
+    @value = 'scissors'
+    @beats = ['paper', 'lizard']
+  end
 end
 
 class Lizard < Move
+  def initialize
+    @value = 'lizard'
+    @beats = ['paper', 'spock']
+  end
 end
 
 class Spock < Move
+  def initialize
+    @value = 'spock'
+    @beats = ['rock', 'scissors']
+  end
 end
 
 class Player
   attr_accessor :move, :name, :score, :moves
+
+  OBJECTS = {
+    'rock' => Rock.new,
+    'paper' => Paper.new,
+    'scissors' => Scissors.new,
+    'lizard' => Lizard.new,
+    'spock' => Spock.new
+  }
 
   def initialize
     @score = 0
@@ -82,6 +73,10 @@ class Player
 
   def add_move(mv)
     @moves << mv
+  end
+
+  def to_s
+    @name
   end
 end
 
@@ -104,34 +99,95 @@ class Human < Player
     loop do
       puts MESSAGES['player_choose']
       choice = gets.chomp
-      break if Move::VALUES.include?(choice)
+      break if Player::OBJECTS.keys.include?(choice)
       puts MESSAGES['invalid_choice']
     end
 
-    self.move = Move.new(choice)
-    add_move(self.move)
+    self.move = Player::OBJECTS[choice]
+    add_move(move)
   end
 end
 
 class Computer < Player
+  attr_accessor :name
+end
+
+class R2D2 < Computer
   def set_name
-    self.name = ['R2D2', 'Hal', 'Chappie', 'Sonny', 'Number 5'].sample
+    @name = 'R2D2'
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.sample)
-    add_move(self.move)
+    self.move = Player::OBJECTS['rock']
+    add_move(move)
+  end
+end
+
+class Hal < Computer
+  def set_name
+    @name = 'Hal'
+  end
+
+  def choose
+    random = (rand * 100).round(0)
+    self.move = if random < 50
+                  Player::OBJECTS['rock']
+                elsif random >= 50 && random < 69
+                  Player::OBJECTS['scissors']
+                else
+                  Player::OBJECTS['lizard']
+                end
+    add_move(move)
+  end
+end
+
+class Chappie < Computer
+  def set_name
+    @name = 'Chappie'
+  end
+
+  def choose
+    random = (rand * 100).round(0)
+    self.move = if random <= 50
+                  Player::OBJECTS['lizard']
+                else
+                  Player::OBJECTS['spock']
+                end
+    add_move(move)
+  end
+end
+
+class Sonny < Computer
+  def set_name
+    @name = 'Sonny'
+  end
+
+  def choose
+    selection = Move::VALUES.sample
+    self.move = Player::OBJECTS[selection]
+    add_move(move)
+  end
+end
+
+class Number5 < Computer
+  def set_name
+    @name = 'Number 5'
+  end
+
+  def choose
+    self.move = Player::OBJECTS['paper']
+    add_move(move)
   end
 end
 
 class RPSGame
-  WINNING_SCORE = 5
+  WINNING_SCORE = 10
 
   attr_accessor :human, :computer
 
   def initialize
     @human = Human.new
-    @computer = Computer.new
+    @computer = [R2D2.new, Hal.new, Chappie.new, Sonny.new, Number5.new].sample
   end
 
   def display_welcome_message
@@ -147,30 +203,41 @@ class RPSGame
 
   def display_winner
     puts MESSAGES['divider']
-    if human.move > computer.move
-      puts "#{human.name} won!"
-      human.score += 1
-    elsif human.move < computer.move
-      puts "#{computer.name} won!"
-      computer.score += 1
+    human_move = human.move
+    computer_move = computer.move
+    if human_move > computer_move
+      puts "#{human} won!"
+    elsif computer_move > human_move
+      puts "#{computer} won!"
     else
-      puts MESSAGES['tie'] 
+      puts MESSAGES['tie']
+    end
+  end
+
+  def update_score
+    human_move = human.move
+    computer_move = computer.move
+    if human_move > computer_move
+      human.score += 1
+    elsif computer_move > human_move
+      computer.score += 1
     end
   end
 
   def display_score
     puts MESSAGES['divider']
-    puts "#{human.name}: #{human.score}"
-    puts "#{computer.name}: #{computer.score}"
+    puts "#{human}: #{human.score}"
+    puts "#{computer}: #{computer.score}"
   end
 
-  def display_all_moves
+  def display_all_moves(plyr1, plyr2)
     puts MESSAGES['divider']
-    puts "Moves by round:"
-    0.upto(human.moves.size - 1) do |idx|
-      puts "ROUND #{idx + 1} - #{human.name}: #{human.moves[idx].value} | "\
-           "#{computer.name}: #{computer.moves[idx].value}"
-    end 
+    [plyr1, plyr2].each do |plyr|
+      puts plyr
+      plyr.moves.each_with_index do |move, idx|
+        puts "ROUND #{idx + 1}: #{move}"
+      end
+    end
   end
 
   def display_goodbye_message
@@ -186,7 +253,7 @@ class RPSGame
       puts MESSAGES['play_again']
       answer = gets.chomp
       break if ['y', 'n'].include?(answer.downcase)
-      puts MESSAGES['invalid_y_n'] 
+      puts MESSAGES['invalid_y_n']
     end
 
     ['Y', 'y'].include?(answer) ? true : false
@@ -198,32 +265,36 @@ class RPSGame
 
   def display_series_winner
     puts MESSAGES['divider']
-    if human.score == WINNING_SCORE
-      puts "#{human.name} won the series with #{human.score} wins!"
-    elsif computer.score == WINNING_SCORE
-      puts "#{computer.name} won the series with #{computer.score} wins!"
+    human_score = human.score
+    computer_score = computer.score
+    if human_score == WINNING_SCORE
+      puts "#{human} won the series with #{human_score} wins!"
+    elsif computer_score == WINNING_SCORE
+      puts "#{computer} won the series with #{computer_score} wins!"
     else
-      puts MESSAGES['no_series_winner'] 
+      puts MESSAGES['no_series_winner']
     end
+  end
+
+  def match_play
+    system('clear') || system('cls')
+    human.choose
+    computer.choose
+    display_moves
+    display_winner
+    update_score
+    display_score
+    display_all_moves(human, computer)
   end
 
   def play
     display_welcome_message
-
     loop do
-      human.choose
-      computer.choose
-      display_moves
-      display_winner
-      display_score
-      display_all_moves
-
+      match_play
       break if series_over?
       break unless play_again?
     end
-
     display_series_winner
-
     display_goodbye_message
   end
 end
