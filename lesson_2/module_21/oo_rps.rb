@@ -8,6 +8,8 @@ MESSAGES = YAML.load_file('oo_rps.yml')
 class Move
   VALUES = ['rock', 'paper', 'scissors', 'lizard', 'spock']
 
+  attr_reader :value
+
   def initialize(value)
     @value = value
   end
@@ -96,6 +98,7 @@ class Human < Player
   end
 
   def choose
+    puts MESSAGES['divider']
     choice = nil
 
     loop do
@@ -132,15 +135,18 @@ class RPSGame
   end
 
   def display_welcome_message
+    puts MESSAGES['divider']
     puts MESSAGES['welcome']
   end
 
   def display_moves
+    puts MESSAGES['divider']
     puts "#{human.name} chose #{human.move}."
     puts "#{computer.name} chose #{computer.move}."
   end
 
   def display_winner
+    puts MESSAGES['divider']
     if human.move > computer.move
       puts "#{human.name} won!"
       human.score += 1
@@ -153,15 +159,27 @@ class RPSGame
   end
 
   def display_score
+    puts MESSAGES['divider']
     puts "#{human.name}: #{human.score}"
     puts "#{computer.name}: #{computer.score}"
   end
 
+  def display_all_moves
+    puts MESSAGES['divider']
+    puts "Moves by round:"
+    0.upto(human.moves.size - 1) do |idx|
+      puts "ROUND #{idx + 1} - #{human.name}: #{human.moves[idx].value} | "\
+           "#{computer.name}: #{computer.moves[idx].value}"
+    end 
+  end
+
   def display_goodbye_message
+    puts MESSAGES['divider']
     puts MESSAGES['goodbye']
   end
 
   def play_again?
+    puts MESSAGES['divider']
     answer = nil
 
     loop do
@@ -179,14 +197,10 @@ class RPSGame
   end
 
   def display_series_winner
-    #TODO: Finish this feature.
-    puts "This is a placeholder."
-  end
-
-  def display_series_winner
+    puts MESSAGES['divider']
     if human.score == WINNING_SCORE
       puts "#{human.name} won the series with #{human.score} wins!"
-    elsif
+    elsif computer.score == WINNING_SCORE
       puts "#{computer.name} won the series with #{computer.score} wins!"
     else
       puts MESSAGES['no_series_winner'] 
@@ -202,10 +216,7 @@ class RPSGame
       display_moves
       display_winner
       display_score
-
-      #TODO: Remove this.
-      puts "#{human.name}'s moves: #{human.moves}"
-      puts "#{computer.name}'s moves: #{computer.moves}"
+      display_all_moves
 
       break if series_over?
       break unless play_again?

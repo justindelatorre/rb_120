@@ -1,6 +1,7 @@
 
 request_name: "What's your name?"
 no_value: 'Sorry, must enter a value.'
+divider: '=================================================='
 player_choose: 'Please choose rock, paper, scissors, lizard, or spock:'
 invalid_choice: 'Sorry, invalid choice.'
 welcome: 'Welcome to Rock, Paper, Scissors, Lizard, Spock!'
