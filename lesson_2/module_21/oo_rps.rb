@@ -33,15 +33,19 @@ class Move
   end
 
   def >(other)
-    (rock? && other.scissors?) ||
-      (paper? && other.rock?) ||
-      (scissors? && other.paper?)
+    (rock? && (other.scissors? || other.lizard?)) ||
+      (paper? && (other.rock? || other.spock?)) ||
+      (scissors? && (other.paper? || other.lizard?)) ||
+      (lizard? && (other.paper? || other.spock)) ||
+      (spock? && (other.rock? || other.scissors?))
   end
 
   def <(other)
-    (rock? && other.paper?) ||
-      (paper? && other.scissors?) ||
-      (scissors? && other.rock?)
+    (rock? && (other.paper? || other.spock?)) ||
+      (paper? && (other.scissors? || other.lizard?)) ||
+      (scissors? && (other.rock? || other.spock?)) ||
+      (lizard? && (other.rock? || other.scissors?)) ||
+      (spock? && (other.paper? || other.lizard?))
   end
 
   def to_s
@@ -118,7 +122,7 @@ class Computer < Player
 end
 
 class RPSGame
-  WINNING_SCORE = 2
+  WINNING_SCORE = 5
 
   attr_accessor :human, :computer
 
@@ -175,6 +179,7 @@ class RPSGame
   end
 
   def display_series_winner
+    #TODO: Finish this feature.
     puts "This is a placeholder."
   end
 
