@@ -115,8 +115,6 @@ class Square
 end
 
 class Player
-  MARKERS = ['X', 'O']
-
   attr_accessor :score
   attr_reader :marker, :name
 
@@ -135,14 +133,14 @@ class Human < Player
   private
 
   def set_name
-    puts MESSAGES['player_name'] 
+    puts MESSAGES['player_name']
     gets.chomp
   end
 
   def set_marker
     answer = nil
     loop do
-      puts "Select your marker: #{MARKERS.join(' or ')}"
+      puts "Select your marker: #{TTTGame::MARKERS.join(' or ')}"
       answer = gets.chomp.upcase
       break if MARKERS.include?(answer)
       puts "Sorry, you can only select #{MARKERS.join(' or ')}."
@@ -162,7 +160,7 @@ class Computer < Player
   private
 
   def set_name
-    puts MESSAGES['opponent_name'] 
+    puts MESSAGES['opponent_name']
     gets.chomp
   end
 
@@ -244,7 +242,7 @@ class TTTGame
     elsif computer_wins?
       puts "#{computer.name} wins with #{WINNING_SCORE} wins!"
     else
-      puts MESSAGES['tie'] 
+      puts MESSAGES['tie']
     end
   end
 
@@ -321,14 +319,18 @@ class TTTGame
     square
   end
 
+  def assign_square
+    square = find_advantage_square_for(computer.marker)
+    square = find_advantage_square_for(human.marker) if !square
+    square = board.unmarked_keys.sample if !square
+
+    square
+  end
+
   def computer_moves
     square = 5 if board.squares[5].marker == Square::INITIAL_MARKER
 
-    square = find_advantage_square_for(computer.marker) if !square
-
-    square = find_advantage_square_for(human.marker) if !square
-
-    square = board.unmarked_keys.sample if !square
+    square = assign_square if !square
 
     board[square] = computer.marker
   end
@@ -358,7 +360,7 @@ class TTTGame
   def play_again?
     answer = nil
     loop do
-      puts MESSAGES['ask_play_again'] 
+      puts MESSAGES['ask_play_again']
       answer = gets.chomp.downcase
       break if %w(y n).include?(answer)
       puts MESSAGES['invalid_y_n']
@@ -374,7 +376,7 @@ class TTTGame
   end
 
   def display_play_again_message
-    puts MESSAGES['play_again'] 
+    puts MESSAGES['play_again']
     puts ""
   end
 end
