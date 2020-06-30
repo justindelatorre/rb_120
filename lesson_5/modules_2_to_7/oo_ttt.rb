@@ -2,6 +2,9 @@
 Assignment: https://launchschool.com/lessons/97babc46/assignments/7dcb53f1
 =end
 
+require 'yaml'
+MESSAGES = YAML.load_file('oo_ttt.yml')
+
 module Textable
   def joinor(arr, delim=', ', conj='or')
     case arr.size
@@ -132,7 +135,7 @@ class Human < Player
   private
 
   def set_name
-    puts "What is your name?"
+    puts MESSAGES['player_name'] 
     gets.chomp
   end
 
@@ -159,7 +162,7 @@ class Computer < Player
   private
 
   def set_name
-    puts "What is your opponent's name?"
+    puts MESSAGES['opponent_name'] 
     gets.chomp
   end
 
@@ -241,7 +244,7 @@ class TTTGame
     elsif computer_wins?
       puts "#{computer.name} wins with #{WINNING_SCORE} wins!"
     else
-      puts "It's a tie!"
+      puts MESSAGES['tie'] 
     end
   end
 
@@ -339,7 +342,7 @@ class TTTGame
     when computer.marker
       puts "#{computer.name} won!"
     else
-      puts "It's a tie!"
+      puts MESSAGES['tie']
     end
   end
 
@@ -355,10 +358,10 @@ class TTTGame
   def play_again?
     answer = nil
     loop do
-      puts "Would you like to play again? (y/n)"
+      puts MESSAGES['ask_play_again'] 
       answer = gets.chomp.downcase
       break if %w(y n).include?(answer)
-      puts "Sorry, must be y or n."
+      puts MESSAGES['invalid_y_n']
     end
 
     answer == 'y'
@@ -371,7 +374,7 @@ class TTTGame
   end
 
   def display_play_again_message
-    puts "Let's play again!"
+    puts MESSAGES['play_again'] 
     puts ""
   end
 end

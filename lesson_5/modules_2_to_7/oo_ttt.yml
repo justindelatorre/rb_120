@@ -1,0 +1,8 @@
+
+player_name: "What is your name?"
+opponent_name: "What is your opponent's name?"
+tie: "It's a tie!"
+invalid_square: "Sorry, that's not a valid choice."
+ask_play_again: "Would you like to play again? (y/n)"
+invalid_y_n: "Sorry, must be y or n."
+play_again: "Let's play again!"
