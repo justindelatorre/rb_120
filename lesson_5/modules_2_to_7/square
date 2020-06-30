@@ -1,0 +1,29 @@
+
+[1mFrom:[0m /home/ubuntu/environment/launch_school/rb_120/lesson_5/modules_2_to_7/oo_ttt.rb:300 TTTGame#computer_moves:
+
+    [1;34m279[0m: [32mdef[0m [1;34mcomputer_moves[0m
+    [1;34m280[0m:   square = [1;34m5[0m [32mif[0m board.get_square_at([1;34m5[0m) == [1;34;4mSquare[0m::[1;34;4mINITIAL_MARKER[0m
+    [1;34m281[0m: 
+    [1;34m282[0m:   [32mif[0m !square
+    [1;34m283[0m:     [1;34;4mBoard[0m::[1;34;4mWINNING_LINES[0m.each [32mdo[0m |line|
+    [1;34m284[0m:       square = find_at_risk_square(line, board, [1;34;4mCOMPUTER_MARKER[0m)
+    [1;34m285[0m:       [32mbreak[0m [32mif[0m square
+    [1;34m286[0m:     [32mend[0m
+    [1;34m287[0m:   [32mend[0m
+    [1;34m288[0m: 
+    [1;34m289[0m:   [32mif[0m !square
+    [1;34m290[0m:     [1;34;4mBoard[0m::[1;34;4mWINNING_LINES[0m.each [32mdo[0m |line|
+    [1;34m291[0m:       square = find_at_risk_square(line, board, [1;34;4mHUMAN_MARKER[0m)
+    [1;34m292[0m:       [32mbreak[0m [32mif[0m square
+    [1;34m293[0m:     [32mend[0m
+    [1;34m294[0m:   [32mend[0m
+    [1;34m295[0m:   
+    [1;34m296[0m:   [32mif[0m !square
+    [1;34m297[0m:     board[board.unmarked_keys.sample] = computer.marker
+    [1;34m298[0m:   [32mend[0m
+    [1;34m299[0m: 
+ => [1;34m300[0m:   binding.pry
+    [1;34m301[0m: 
+    [1;34m302[0m:   board[square] = [1;34;4mCOMPUTER_MARKER[0m
+    [1;34m303[0m: [32mend[0m
+
