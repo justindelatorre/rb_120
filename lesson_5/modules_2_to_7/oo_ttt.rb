@@ -2,8 +2,6 @@
 Assignment: https://launchschool.com/lessons/97babc46/assignments/7dcb53f1
 =end
 
-require 'pry'
-
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
@@ -14,6 +12,8 @@ class Board
     reset
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
   def draw
     puts "     |     |"
     puts "  #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}"
@@ -27,12 +27,14 @@ class Board
     puts "  #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}"
     puts "     |     |"
   end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
 
   def get_square_at(key)
     @squares[key]
   end
 
-  def []=(num, marker) 
+  def []=(num, marker)
     @squares[num].marker = marker
   end
 
@@ -48,7 +50,7 @@ class Board
     !!winning_marker
   end
 
-  def winning_marker 
+  def winning_marker
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if three_identical_markers?(squares)
@@ -117,24 +119,9 @@ class TTTGame
   end
 
   def play
-    clear 
+    clear
     display_welcome_message
-
-    loop do
-    display_board
-
-      loop do
-        current_player_moves
-        break if board.someone_won? || board.full?
-        clear_screen_and_display_board if human_turn?
-      end
-
-      display_result
-      break unless play_again?
-      reset
-      display_play_again_message
-    end
-
+    main_game
     display_goodbye_message
   end
 
@@ -149,6 +136,17 @@ class TTTGame
     puts ""
   end
 
+  def main_game
+    loop do
+      display_board
+      player_move
+      display_result
+      break unless play_again?
+      reset
+      display_play_again_message
+    end
+  end
+
   def display_goodbye_message
     puts "Thanks for playing Tic Tac Toe!"
   end
@@ -159,18 +157,26 @@ class TTTGame
     board.draw
     puts ""
   end
-  
+
+  def player_move
+    loop do
+      current_player_moves
+      break if board.someone_won? || board.full?
+      clear_screen_and_display_board if human_turn?
+    end
+  end
+
   def clear_screen_and_display_board
     clear
     display_board
   end
 
-  def human_turn? 
+  def human_turn?
     @current_marker == HUMAN_MARKER
   end
 
   def current_player_moves
-    if human_turn? 
+    if human_turn?
       human_moves
       @current_marker = COMPUTER_MARKER
     else
@@ -223,7 +229,7 @@ class TTTGame
   def reset
     board.reset
     @current_marker = FIRST_TO_MOVE
-    clear 
+    clear
   end
 
   def display_play_again_message
