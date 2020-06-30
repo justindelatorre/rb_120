@@ -2,10 +2,25 @@
 Assignment: https://launchschool.com/lessons/97babc46/assignments/7dcb53f1
 =end
 
+module Textable
+  def joinor(arr, delim=', ', conj='or')
+    case arr.size
+    when 0 then ''
+    when 1 then arr.first
+    when 2 then arr.join(" #{conj} ")
+    else
+      arr[-1] = "#{conj} #{arr.last}"
+      arr.join(delim)
+    end
+  end
+end
+
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                   [[1, 5, 9], [3, 5, 7]]
+
+  attr_reader :squares
 
   def initialize
     @squares = {}
@@ -51,7 +66,7 @@ class Board
   end
 
   def winning_marker
-    WINNING_LINES.each do |line|
+    Board::WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if three_identical_markers?(squares)
         return squares.first.marker
@@ -97,31 +112,90 @@ class Square
 end
 
 class Player
-  attr_reader :marker
+  MARKERS = ['X', 'O']
 
-  def initialize(marker)
-    @marker = marker
+  attr_accessor :score
+  attr_reader :marker, :name
+
+  def initialize
+    @score = 0
+  end
+end
+
+class Human < Player
+  def initialize
+    super
+    @name = set_name
+    @marker = set_marker
+  end
+
+  private
+
+  def set_name
+    puts "What is your name?"
+    gets.chomp
+  end
+
+  def set_marker
+    answer = nil
+    loop do
+      puts "Select your marker: #{MARKERS.join(' or ')}"
+      answer = gets.chomp.upcase
+      break if MARKERS.include?(answer)
+      puts "Sorry, you can only select #{MARKERS.join(' or ')}."
+    end
+
+    answer
+  end
+end
+
+class Computer < Player
+  def initialize
+    super
+    @name = set_name
+    @marker = set_marker
+  end
+
+  private
+
+  def set_name
+    puts "What is your opponent's name?"
+    gets.chomp
+  end
+
+  def set_marker
+    answer = nil
+    loop do
+      puts "Select your opponent's marker: #{MARKERS.join(' or ')}"
+      answer = gets.chomp.upcase
+      break if MARKERS.include?(answer)
+      puts "Sorry, you can only select #{MARKERS.join(' or ')}."
+    end
+
+    answer
   end
 end
 
 class TTTGame
-  HUMAN_MARKER = 'X'
-  COMPUTER_MARKER = 'O'
-  FIRST_TO_MOVE = HUMAN_MARKER
+  include Textable
+
+  WINNING_SCORE = 3
 
   attr_reader :board, :human, :computer
 
   def initialize
     @board = Board.new
-    @human = Player.new(HUMAN_MARKER)
-    @computer = Player.new(COMPUTER_MARKER)
-    @current_marker = FIRST_TO_MOVE
+    @human = Human.new
+    @computer = Computer.new
+    @current_marker = human.marker
+    @first_to_move = human.marker
   end
 
   def play
     clear
     display_welcome_message
     main_game
+    display_game_winner
     display_goodbye_message
   end
 
@@ -132,7 +206,7 @@ class TTTGame
   end
 
   def display_welcome_message
-    puts "Welcome to Tic Tac Toe!"
+    puts "Welcome to Tic Tac Toe, #{human.name}!"
     puts ""
   end
 
@@ -141,18 +215,43 @@ class TTTGame
       display_board
       player_move
       display_result
+      award_point
+      break if player_wins?
       break unless play_again?
       reset
       display_play_again_message
     end
   end
 
+  def human_wins?
+    human.score == WINNING_SCORE
+  end
+
+  def computer_wins?
+    computer.score == WINNING_SCORE
+  end
+
+  def player_wins?
+    human_wins? || computer_wins?
+  end
+
+  def display_game_winner
+    if human_wins?
+      puts "#{human.name} wins with #{WINNING_SCORE} wins!"
+    elsif computer_wins?
+      puts "#{computer.name} wins with #{WINNING_SCORE} wins!"
+    else
+      puts "It's a tie!"
+    end
+  end
+
   def display_goodbye_message
-    puts "Thanks for playing Tic Tac Toe!"
+    puts "Thanks for playing Tic Tac Toe, #{human.name}!"
   end
 
   def display_board
-    puts "You're a #{human.marker}. Computer is a #{computer.marker}."
+    puts "#{human.name} is a #{human.marker}. "\
+         "#{computer.name} is a #{computer.marker}."
     puts ""
     board.draw
     puts ""
@@ -172,22 +271,22 @@ class TTTGame
   end
 
   def human_turn?
-    @current_marker == HUMAN_MARKER
+    @current_marker == human.marker
   end
 
   def current_player_moves
     if human_turn?
       human_moves
-      @current_marker = COMPUTER_MARKER
+      @current_marker = computer.marker
     else
       computer_moves
-      @current_marker = HUMAN_MARKER
+      @current_marker = human.marker
     end
   end
 
   def human_moves
     square = nil
-    puts "Choose a square between (#{board.unmarked_keys.join(', ')}):"
+    puts "Choose a square between (#{joinor(board.unmarked_keys)}):"
     loop do
       square = gets.chomp.to_i
       break if board.unmarked_keys.include?(square)
@@ -197,8 +296,38 @@ class TTTGame
     board[square] = human.marker
   end
 
+  def find_at_risk_square(line, brd, marker)
+    squares = brd.squares
+    line_squares = brd.squares.values_at(*line)
+
+    return nil if line_squares.map(&:marker).count(marker) < 2
+
+    squares.select do |k, v|
+      line.include?(k) && v.marker == Square::INITIAL_MARKER
+    end.keys.first
+  end
+
+  def find_advantage_square_for(marker)
+    square = nil
+
+    Board::WINNING_LINES.each do |line|
+      square = find_at_risk_square(line, board, marker)
+      break if square
+    end
+
+    square
+  end
+
   def computer_moves
-    board[board.unmarked_keys.sample] = computer.marker
+    square = 5 if board.squares[5].marker == Square::INITIAL_MARKER
+
+    square = find_advantage_square_for(computer.marker) if !square
+
+    square = find_advantage_square_for(human.marker) if !square
+
+    square = board.unmarked_keys.sample if !square
+
+    board[square] = computer.marker
   end
 
   def display_result
@@ -206,11 +335,20 @@ class TTTGame
 
     case board.winning_marker
     when human.marker
-      puts "You won!"
+      puts "#{human.name} won!"
     when computer.marker
-      puts "Computer won!"
+      puts "#{computer.name} won!"
     else
       puts "It's a tie!"
+    end
+  end
+
+  def award_point
+    case board.winning_marker
+    when human.marker
+      human.score += 1
+    when computer.marker
+      computer.score += 1
     end
   end
 
@@ -228,7 +366,7 @@ class TTTGame
 
   def reset
     board.reset
-    @current_marker = FIRST_TO_MOVE
+    @current_marker = human.marker
     clear
   end
 
