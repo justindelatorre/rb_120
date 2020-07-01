@@ -176,7 +176,7 @@ class Game
   end
 
   def display_goodbye_message
-    puts MESSAGES['divider'] 
+    puts MESSAGES['divider']
     puts "Thanks for playing Twenty-One, #{player.name}!"
   end
 
@@ -188,13 +188,13 @@ class Game
   end
 
   def display_initial_cards
-    puts MESSAGES['divider'] 
+    puts MESSAGES['divider']
     player.display_hand
     dealer.display_initial_hand
   end
 
   def select_hit_or_stay
-    puts MESSAGES['divider'] 
+    puts MESSAGES['divider']
     answer = nil
     loop do
       puts MESSAGES['hit_or_stay']
