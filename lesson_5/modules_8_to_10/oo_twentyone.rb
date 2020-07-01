@@ -2,7 +2,8 @@
 Assignment: https://launchschool.com/lessons/97babc46/assignments/819bf113
 =end
 
-DIVIDER = '=' * 50
+require 'yaml'
+MESSAGES = YAML.load_file('oo_twentyone.yml')
 
 class Participant
   attr_accessor :hand
@@ -17,7 +18,7 @@ class Participant
   end
 
   def stay
-    'stay'
+    MESSAGES['stay']
   end
 
   def busted?
@@ -66,14 +67,14 @@ class Player < Participant
   end
 
   def set_name
-    puts DIVIDER
+    puts MESSAGES['divider']
     answer = nil
 
     loop do
-      puts "What is your name?"
+      puts MESSAGES['ask_name']
       answer = gets.chomp
       break if !answer.empty?
-      puts "Please input your name."
+      puts MESSAGES['no_name']
     end
 
     answer
@@ -175,7 +176,7 @@ class Game
   end
 
   def display_goodbye_message
-    puts DIVIDER
+    puts MESSAGES['divider'] 
     puts "Thanks for playing Twenty-One, #{player.name}!"
   end
 
@@ -187,19 +188,19 @@ class Game
   end
 
   def display_initial_cards
-    puts DIVIDER
+    puts MESSAGES['divider'] 
     player.display_hand
     dealer.display_initial_hand
   end
 
   def select_hit_or_stay
-    puts DIVIDER
+    puts MESSAGES['divider'] 
     answer = nil
     loop do
-      puts "Do you want to hit or stay?"
+      puts MESSAGES['hit_or_stay']
       answer = gets.chomp.downcase
       break if ['hit', 'stay'].include?(answer)
-      puts "Sorry, please select hit or stay."
+      puts MESSAGES['invalid_hit_or_stay']
     end
 
     answer
@@ -209,10 +210,10 @@ class Game
     answer = select_hit_or_stay
 
     while answer == 'hit'
-      puts "You chose to hit!"
+      puts MESSAGES['chose_hit']
       player.hit!(deck)
       player.display_hand
-      break if player.busted? || answer == 'stay'
+      break if player.busted? || answer == MESSAGES['stay']
       answer = select_hit_or_stay
     end
   end
@@ -224,7 +225,7 @@ class Game
   end
 
   def show_result
-    puts DIVIDER
+    puts MESSAGES['divider']
     player.display_hand
     dealer.display_hand
   end
@@ -248,12 +249,12 @@ class Game
   end
 
   def declare_winner
-    puts DIVIDER
+    puts MESSAGES['divider']
 
     if @winner
       puts "#{@winner} wins!"
     else
-      puts "It's a tie!"
+      puts MESSAGES['tie']
     end
   end
 
@@ -261,10 +262,10 @@ class Game
     answer = nil
 
     loop do
-      puts "Would you like to play again? (y/n)"
+      puts MESSAGES['ask_play_again']
       answer = gets.chomp.downcase
       break if ['y', 'n'].include?(answer)
-      puts "Sorry, please select either y or n."
+      puts MESSAGES['invalid_y_n']
     end
 
     answer == 'y'

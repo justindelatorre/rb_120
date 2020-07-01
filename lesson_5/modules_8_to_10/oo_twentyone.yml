@@ -1,0 +1,11 @@
+
+divider: "=================================================="
+stay: "stay"
+ask_name: "What is your name?"
+no_name: "Please input your name."
+hit_or_stay: "Do you want to hit or stay?"
+invalid_hit_or_stay: "Sorry, please select hit or stay."
+chose_hit: "You chose to hit!"
+tie: "It's a tie!"
+ask_play_again: "Would you like to play again? (y/n)"
+invalid_y_n: "Sorry, please select either y or n."
