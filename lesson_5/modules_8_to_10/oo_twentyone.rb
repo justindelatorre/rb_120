@@ -9,22 +9,7 @@ class Participant
   attr_reader :name
 
   def initialize
-    @name = set_name
     @hand = []
-  end
-
-  def set_name
-    puts DIVIDER
-    answer = nil
-
-    loop do
-      puts "What is this participant's name?"
-      answer = gets.chomp
-      break if !answer.empty?
-      puts "Please input a name."
-    end
-
-    answer
   end
 
   def hit!(deck)
@@ -75,6 +60,11 @@ class Participant
 end
 
 class Player < Participant
+  def initialize
+    super
+    @name = set_name
+  end
+
   def set_name
     puts DIVIDER
     answer = nil
@@ -91,6 +81,11 @@ class Player < Participant
 end
 
 class Dealer < Participant
+  def initialize
+    super
+    @name = set_name
+  end
+
   def set_name
     'Dealer'
   end
