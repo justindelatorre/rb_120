@@ -115,6 +115,8 @@ class Square
 end
 
 class Player
+  MARKERS = ['X', 'O']
+
   attr_accessor :score
   attr_reader :marker, :name
 
@@ -140,7 +142,7 @@ class Human < Player
   def set_marker
     answer = nil
     loop do
-      puts "Select your marker: #{TTTGame::MARKERS.join(' or ')}"
+      puts "Select your marker: #{MARKERS.join(' or ')}"
       answer = gets.chomp.upcase
       break if MARKERS.include?(answer)
       puts "Sorry, you can only select #{MARKERS.join(' or ')}."
