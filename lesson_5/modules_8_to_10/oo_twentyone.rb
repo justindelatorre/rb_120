@@ -146,6 +146,15 @@ class Game
     @winner = nil
   end
 
+  def start
+    clear
+    display_welcome_message
+    play
+    display_goodbye_message
+  end
+
+  private
+
   def play
     loop do
       deal_cards!
@@ -157,13 +166,6 @@ class Game
       declare_winner
       play_again? ? reset : break
     end
-  end
-
-  def start
-    clear
-    display_welcome_message
-    play
-    display_goodbye_message
   end
 
   def clear
@@ -199,7 +201,7 @@ class Game
     loop do
       puts MESSAGES['hit_or_stay']
       answer = gets.chomp.downcase
-      break if ['hit', 'stay'].include?(answer)
+      break if ['hit', 'stay', 'h', 's'].include?(answer)
       puts MESSAGES['invalid_hit_or_stay']
     end
 
