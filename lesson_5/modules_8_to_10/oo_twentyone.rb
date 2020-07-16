@@ -73,7 +73,7 @@ class Player < Participant
     loop do
       puts MESSAGES['ask_name']
       answer = gets.chomp
-      break if !answer.empty?
+      break if !answer.strip.empty?
       puts MESSAGES['no_name']
     end
 
